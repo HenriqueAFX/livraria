@@ -1,0 +1,16 @@
+# Ambiente Virtual (O mais importante)
+.venv/
+venv/
+env/
+
+# Arquivos temporários do Python (Compilados)
+__pycache__/
+*.pyc
+
+# Configurações de IDE (Opcional, mas limpa o repo)
+.vscode/
+
+# Arquivos de sistema (No caso do seu Linux Mint)
+.DS_Store
+
+teste.py

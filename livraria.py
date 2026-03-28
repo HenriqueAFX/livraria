@@ -1,7 +1,8 @@
 # ================================================================
-#   PRÉ-DEFINIÇÕES
+#   IMPORTAÇÕES
 # ================================================================
 
+# Importa comandos do Windows/Linux
 import os
 
 # ================================================================
@@ -15,9 +16,8 @@ def Limpar():
     else:
         os.system('clear')
 
-# Verificacao de dados
+# Validacao de dados
 def Validacao(tipo, valor):
-
     try:
         if tipo == "int":
             return int(valor)
@@ -40,9 +40,9 @@ def Gera_codigo():
 def Cadastrar_livro():
     while True:
         Limpar()
-        print("""------------------------------
+        print(f"""{"-" * 31}
 LIVRARIA - CADASTRO DE LIVROS
-------------------------------
+{"-" * 31}
 """)
 
         codigo = Gera_codigo()
@@ -80,14 +80,14 @@ LIVRARIA - CADASTRO DE LIVROS
 # 2. Listar livros cadastrados
 def Livros_cadastrados():
         Limpar()
-        print("""-------------------------------
+        print(f"""{"-" * 32}
  LIVRARIA - LIVROS CADASTRADOS
--------------------------------
+{"-" * 32}
 """)
         for livro in lista_livros:
             print("")
             livro.info()
-            print("--------------------------------------------------------------")
+            print(f"{"-" * 70}")
 
         input("\nPressione 'Enter' para voltar ao menu principal.")
 
@@ -99,24 +99,53 @@ def Buscar_livros():
 # -------------------------------
     
     def Titulo():
-        print("""----------------------------
+        print(f"""{"-" * 29}
  LIVRARIA - BUSCA DE LIVROS
-----------------------------""")
+{"-" * 29}""")
     def Limpar_e_titulo():
         Limpar()
         Titulo()
+    def Linha():
+        print("-" * 62)
     def Volta_menu():
         input("\nPressione 'Enter' para voltar ao menu de busca.")
     def Nenhum_registro(i):
         if i<1: print("\nNenhum registro encontrado.")
-    def Busca_texto(atributo_texto):
-        ...
+    def Busca_texto(tipo):
+            Limpar_e_titulo()    
+            
+            if tipo == "titulo":
+                busca = input("\nTitulo: ")
+            elif tipo == "autor":
+                busca = input("\nAutor: ")
+            elif tipo == "editora":   
+                busca = input("\nEditora: ")    
+            elif tipo == "categoria":
+                busca = input("\nCategoria: ")  
+
+            Limpar_e_titulo()
+            i = 0 
+
+            for livro in lista_livros:
+                encontrou = False
+                if tipo == "titulo" and livro.titulo == busca: encontrou = True
+                if tipo == "autor" and livro.autor == busca: encontrou = True
+                if tipo == "editora" and livro.editora == busca: encontrou = True
+                if tipo == "categoria" and livro.categoria == busca: encontrou = True
+
+                if encontrou == True:
+                    print("")
+                    livro.info()
+                    Linha()
+                    i += 1
+
+            Nenhum_registro(i)
+            Volta_menu()
         
 # -------------------------------
 # Funções de busca
 # -------------------------------
     def Busca_codigo():
-
         while True:
             Limpar_e_titulo()
             entrada = input("\nCódigo: ")
@@ -130,91 +159,23 @@ def Buscar_livros():
             if livro.codigo == busca:
                 print("")
                 livro.info()
-                print("--------------------------------------------------------------")
+                Linha()
                 i+=1
 
         Nenhum_registro(i)
         Volta_menu()
 
     def Busca_titulo():
-        Limpar()
-        Titulo()
-
-        busca = input("\nTitulo: ")
-
-        Limpar()
-        Titulo()
-        i = 0 
-
-        for livro in lista_livros:
-            if livro.titulo == busca:
-                print("")
-                livro.info()
-                print("--------------------------------------------------------------")
-                i+=1
-
-        if i<1: print("\nNenhum registro encontrado.")
-        input("\nPressione 'Enter' para voltar ao menu principal.")
+        Busca_texto("titulo")
 
     def Busca_autor():
-        Limpar()
-        Titulo()
-
-        busca = input("\nAutor: ")
-
-        Limpar()
-        Titulo()
-        i = 0
-
-        for livro in lista_livros:
-            if livro.autor == busca:
-                print("")
-                livro.info()
-                print("--------------------------------------------------------------")
-                i+=1
-
-        if i<1: print("\nNenhum registro encontrado.")
-        input("\nPressione 'Enter' para voltar ao menu principal.")
-
-    def Busca_editora():
-        Limpar()
-        Titulo()
-
-        busca = input("\nEditora: ")
-
-        Limpar()
-        Titulo()
-        i = 0
+        Busca_texto("autor")
         
-        for livro in lista_livros:
-            if livro.editora == busca:
-                print("")
-                livro.info()
-                print("--------------------------------------------------------------")
-                i+=1
-
-        if i<1: print("\nNenhum registro encontrado.")
-        input("\nPressione 'Enter' para voltar ao menu principal.")
+    def Busca_editora():
+        Busca_texto("editora")
 
     def Busca_categoria():
-        Limpar()
-        Titulo()
-
-        busca = input("\nCategoria: ")
-
-        Limpar()
-        Titulo()
-        i = 0
-        
-        for livro in lista_livros:
-            if livro.categoria == busca:
-                print("")
-                livro.info()
-                print("--------------------------------------------------------------")
-                i+=1
-
-        if i<1: print("\nNenhum registro encontrado.")
-        input("\nPressione 'Enter' para voltar ao menu principal.")
+        Busca_texto("categoria")
 
     def Busca_ano():
         while True:
@@ -239,7 +200,7 @@ Digite sua escolha: """)
                     if livro.ano == busca:
                         print("")
                         livro.info()
-                        print("-" * 62)
+                        Linha()
                         i+=1
                 break
         
@@ -248,7 +209,7 @@ Digite sua escolha: """)
                     if livro.ano <= busca:
                         print("")
                         livro.info()
-                        print("-" * 62)
+                        Linha()
                         i+=1
                 break
 
@@ -257,7 +218,7 @@ Digite sua escolha: """)
                     if livro.ano >= busca:
                         print("")
                         livro.info()
-                        print("-" * 62)
+                        Linha()
                         i+=1
                 break
 
@@ -289,7 +250,7 @@ Digite sua escolha: """)
                     if livro.valor == busca:
                         print("")
                         livro.info()
-                        print("-" * 62)
+                        Linha()
                         i+=1
                 break
         
@@ -298,7 +259,7 @@ Digite sua escolha: """)
                     if livro.valor <= busca:
                         print("")
                         livro.info()
-                        print("-" * 62)
+                        Linha()
                         i+=1
                 break
 
@@ -307,7 +268,7 @@ Digite sua escolha: """)
                     if livro.valor >= busca:
                         print("")
                         livro.info()
-                        print("-" * 62)
+                        Linha()
                         i+=1
                 break
 
@@ -337,7 +298,7 @@ Digite sua escolha: """)
                     if livro.estoque == busca:
                         print("")
                         livro.info()
-                        print("-" * 62)
+                        Linha()
                         i+=1
                 break
         
@@ -346,7 +307,7 @@ Digite sua escolha: """)
                     if livro.estoque <= busca:
                         print("")
                         livro.info()
-                        print("-" * 62)
+                        Linha()
                         i+=1
                 break
 
@@ -355,7 +316,7 @@ Digite sua escolha: """)
                     if livro.estoque >= busca:
                         print("")
                         livro.info()
-                        print("-" * 62)
+                        Linha()
                         i+=1
                 break
 
@@ -387,7 +348,7 @@ Digite sua escolha: """)
                     if (livro.estoque * livro.valor) == busca:
                         print("")
                         livro.info()
-                        print("-" * 62)
+                        Linha()
                         i+=1
                 break
         
@@ -396,7 +357,7 @@ Digite sua escolha: """)
                     if (livro.estoque * livro.valor) <= busca:
                         print("")
                         livro.info()
-                        print("-" * 62)
+                        Linha()
                         i+=1
                 break
 
@@ -405,7 +366,7 @@ Digite sua escolha: """)
                     if (livro.estoque * livro.valor) >= busca:
                         print("")
                         livro.info()
-                        print("-" * 62)
+                        Linha()
                         i+=1
                 break
 
@@ -416,22 +377,22 @@ Digite sua escolha: """)
 
         while True:
             Limpar()
-            busca = input("""----------------------------
-    LIVRARIA - BUSCA DE LIVROS
-    ----------------------------
+            busca = input(f"""{"-" * 29}
+ LIVRARIA - BUSCA DE LIVROS
+{"-" * 29}
                     
-    [1] Buscar livros por código
-    [2] Buscar livros por titulo
-    [3] Buscar livros por autor
-    [4] Buscar livros por editora
-    [5] Buscar livros por categoria
-    [6] Buscar livros por ano
-    [7] Buscar livros por preço
-    [8] Buscar livros por quantidade em estoque
-    [9] Buscar livros por valor total em estoque
-    [0] Voltar ao menu principal
+[1] Buscar livros por código
+[2] Buscar livros por titulo
+[3] Buscar livros por autor
+[4] Buscar livros por editora
+[5] Buscar livros por categoria
+[6] Buscar livros por ano
+[7] Buscar livros por preço
+[8] Buscar livros por quantidade em estoque
+[9] Buscar livros por valor total em estoque
+[0] Voltar ao menu principal
 
-    Digite sua escolha: """)
+Digite sua escolha: """)
 
             if busca == "1":
                 Busca_codigo()
@@ -458,6 +419,52 @@ Digite sua escolha: """)
 # Menu de busca
 # -------------------------------
     Busca_menu()
+
+# Menu principal
+def Menu_principal():
+    while True:
+        Limpar()
+
+        menu = input(f"""{"-" * 38}
+ LIVRARIA - GERENCIAMENTO DE ESTOQUE
+{"-" * 38}
+                    
+[1] Cadastrar livro
+[2] Listar livros cadastrados
+[3] Buscar livros cadastrados
+[0] Encerrar o sistema
+
+Digite sua escolha: """)
+
+# -------------------------------
+# 0. Encerrar sistema
+# -------------------------------
+
+        if menu == "0":
+            Limpar()
+            print("Encerrando sistema...\n")
+            break
+
+# -------------------------------
+# 1. Cadastrar livro
+# -------------------------------
+
+        if menu == "1":
+            Cadastrar_livro()
+
+# -------------------------------
+# 2. Listar livros cadastrados
+# -------------------------------
+
+        if menu == "2":
+            Livros_cadastrados()
+
+# -------------------------------
+# 3. Buscar livros cadastrados
+# -------------------------------
+
+        if menu == "3":
+            Buscar_livros()
 
 # ================================================================
 #   CLASSE
@@ -529,46 +536,4 @@ lista_livros = [
 #   EXECUÇÃO
 # ================================================================
 
-while True:
-    Limpar()
-
-    menu = input("""-------------------------------------
- LIVRARIA - GERENCIAMENTO DE ESTOQUE
--------------------------------------
-                 
-[1] Cadastrar livro
-[2] Listar livros cadastrados
-[3] Buscar livros cadastrados
-[0] Encerrar o sistema
-
-Digite sua escolha: """)
-
-# -------------------------------
-# 0. Encerrar sistema
-# -------------------------------
-
-    if menu == "0":
-        Limpar()
-        print("Encerrando sistema...\n")
-        break
-
-# -------------------------------
-# 1. Cadastrar livro
-# -------------------------------
-
-    if menu == "1":
-        Cadastrar_livro()
-
-# -------------------------------
-# 2. Listar livros cadastrados
-# -------------------------------
-
-    if menu == "2":
-        Livros_cadastrados()
-
-# -------------------------------
-# 3. Buscar livros cadastrados
-# -------------------------------
-
-    if menu == "3":
-        Buscar_livros()
+Menu_principal()
