@@ -36,6 +36,10 @@ def Gera_codigo():
         codigo = ultimo + 1
     return codigo
 
+# -------------------------------
+# Menu principal
+# -------------------------------
+
 # 1. Cadastrar livro
 def Cadastrar_livro():
     while True:
@@ -94,9 +98,9 @@ def Livros_cadastrados():
 # 3. Buscar livros cadastrados
 def Buscar_livros():
 
-# -------------------------------
-# Funções auxiliares
-# -------------------------------
+    # -------------------------------
+    # Funções auxiliares
+    # -------------------------------
     
     def Titulo():
         print(f"""{"-" * 29}
@@ -142,9 +146,9 @@ def Buscar_livros():
             Nenhum_registro(i)
             Volta_menu()
         
-# -------------------------------
-# Funções de busca
-# -------------------------------
+    # -------------------------------
+    # Funções de busca
+    # -------------------------------
     def Busca_codigo():
         while True:
             Limpar_e_titulo()
@@ -415,9 +419,9 @@ Digite sua escolha: """)
             if busca == "0":
                 break
 
-# -------------------------------
-# Menu de busca
-# -------------------------------
+    # -------------------------------
+    # Menu de busca
+    # -------------------------------
     Busca_menu()
 
 # Menu principal
