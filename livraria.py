@@ -83,17 +83,24 @@ LIVRARIA - CADASTRO DE LIVROS
 
 # 2. Listar livros cadastrados
 def Livros_cadastrados():
-        Limpar()
-        print(f"""{"-" * 32}
- LIVRARIA - LIVROS CADASTRADOS
+    Limpar()
+    print(f"""{"-" * 32}
+LIVRARIA - LIVROS CADASTRADOS
 {"-" * 32}
 """)
-        for livro in lista_livros:
-            print("")
-            livro.info()
-            print(f"{"-" * 70}")
+    i = 0.0
 
-        input("\nPressione 'Enter' para voltar ao menu principal.")
+    for livro in lista_livros:
+        print("")
+        livro.info()
+        print(f"{"-" * 70}")
+        valor_total = livro.valor * livro.estoque
+        i += valor_total
+
+    valor_total_str = f"{i:.2f}"
+    print(f'\nValor total do estoque da livraria: R$ {valor_total_str.replace(".",",")}')
+
+    input("\nPressione 'Enter' para voltar ao menu principal.")
 
 # 3. Buscar livros cadastrados
 def Buscar_livros():
@@ -485,14 +492,14 @@ class Livro:
         self.valor = valor
         self.estoque = estoque
 
-# -------------------------------
-#   MÉTODOS/FUNÇÕES DE CLASSE
-# -------------------------------
+    # -------------------------------
+    #   MÉTODOS/FUNÇÕES DE CLASSE
+    # -------------------------------
 
     def info(self):
         valor_s = f"{self.valor:.2f}".replace(".",",")
         valor_total = self.valor * self.estoque
-        valor_total_s = f"{valor_total:.2f}".replace(".",",")
+        valor_total_str = f"{valor_total:.2f}".replace(".",",")
         print(f'''{"Código:".ljust(25)} {self.codigo}
 {"Titulo:".ljust(25)} {self.titulo}
 {"Autor:".ljust(25)} {self.autor}
@@ -501,7 +508,7 @@ class Livro:
 {"Ano:".ljust(25)} {self.ano}
 {"Valor:".ljust(25)} R$ {valor_s}
 {"Estoque:".ljust(25)} {self.estoque} unidades
-{"Valor total de estoque:".ljust(25)} R$ {valor_total_s}
+{"Valor total de estoque:".ljust(25)} R$ {valor_total_str}
 ''')
 
 # ================================================================
