@@ -17,16 +17,26 @@ def Limpar():
         os.system('clear')
 
 # Validacao de dados
-def Validacao(tipo, valor):
+def Validacao(tipo, valor, aceita_negativo=1):
     try:
         if tipo == "int":
-            return int(valor)
-        if tipo == "float":
-            return float(valor)
+            num = int(valor)
+        elif tipo == "float":
+            num = float(valor)
+        else:
+            return None
+
+        # Tratamento para valores negativos
+        if aceita_negativo == 0 and num < 0:
+            print(f"Erro: O valor '{valor}' não pode ser negativo.")
+            return None
+            
+        return num
+
     except (ValueError, TypeError):
         print(f"Erro: '{valor}' não é um número válido.")
         return None
-
+    
 # Gera um novo código para um novo livro
 def Gera_codigo():
     if lista_livros == []:
@@ -36,50 +46,106 @@ def Gera_codigo():
         codigo = ultimo + 1
     return codigo
 
+# Corrige visual da quantidade de numeros (1234,56 = 1.234,56)
+def Correcao_quantia(valor):
+    qtd = len(valor)
+
+    # milhares
+    if 7 <= qtd <= 9:
+            milhar = valor[:-6] # Antes dos ultimos 6 digitos
+            resto = valor[-6:]  # Ultimos 6 digitos (000,00)
+            valor = f"{milhar}.{resto}"
+
+    # milhoes
+    if 10 <= qtd <= 12:
+            milhao = valor[:-10]
+            milhar = valor[-10:-6]
+            resto = valor[-6:]
+            return f"{milhao}.{milhar}.{resto}"
+    
+    # bilhoes
+    if 13 <= qtd <= 15:
+        bilhao = valor[:-14]
+        milhao = valor[-14:-10]
+        milhar = valor[-10:-6]
+        resto = valor[-6:]
+        return f"{bilhao}.{milhao}.{milhar}.{resto}"
+
+    return valor
+
+# Transfere os dados armazenados no "lista_livros.csv" para uma
+# lista interna de mesmo nome, para ser lida pelo sistema
+def Carregar_dados():
+    arquivo = open("lista_livros.csv", "r")
+    arquivo.readline()
+    nova_linha = arquivo.readline()
+
+    while nova_linha:
+        dados_separados = nova_linha.split(';')
+        lista_livros.append(Livro.Construtor_CSV(dados_separados))
+        nova_linha = arquivo.readline()
+
 # -------------------------------
 # Menu principal
 # -------------------------------
 
+# 0. Encerrar sistema
+def Encerrar_sistema():
+    def Titulo():
+        print(f"""{"-" * 36}
+ LIVRARIA - ENCERRAMENTO DE SISTEMA
+{"-" * 36}
+""")
+
+    while True:
+        Limpar()
+        Titulo()
+        op = input("""Qualquer alteração não salva será perdida ao encerrar a sessão atual.
+               
+Deseja salvar as alterações feitas na sessão atual?
+[1] Sim
+[2] Não
+               
+Digite sua escolha: """)
+    
+        if op == "1":
+            Limpar()
+            Titulo()
+            print("Salvando registros...")
+
+            cabecalho = "codigo,titulo,autor,editora,categoria,ano,valor,estoque"
+
+            with open('lista_livros.csv', 'w') as arquivo:
+                arquivo.write(f"{cabecalho}\n")
+
+                for livro in lista_livros:
+                    arquivo.write(f"{livro.codigo};{livro.titulo};{livro.autor};{livro.editora};{livro.categoria};{livro.ano};{livro.valor};{livro.estoque}\n".upper())
+
+            print("\nRegistros salvos com sucesso!")
+            break
+
+        if op == "2":
+            Limpar()
+            Titulo()
+            print("Nenhuma alteração foi salva ou perdida.")
+            break
+
 # 1. Cadastrar livro
 def Cadastrar_livro():
-    while True:
         Limpar()
         print(f"""{"-" * 31}
 LIVRARIA - CADASTRO DE LIVROS
 {"-" * 31}
 """)
 
-        codigo = Gera_codigo()
-        titulo = input("Titulo: ")
-        autor = input("Autor: ")
-        editora = input("Editora: ")
-        categoria = input("Categoria: ")
-
-        while True:
-            entrada = input("Ano: ")
-            ano = Validacao("int", entrada)
-            if ano != None: break
-
-        while True:
-            entrada = input("Valor: ")
-            valor = Validacao("float", entrada)
-            if valor != None: break
-
-        while True:
-            entrada = input("Quantidade: ")
-            estoque = Validacao("int", entrada)
-            if estoque != None: break
-
-        novo_livro = Livro(codigo=codigo, titulo=titulo, autor=autor, editora=editora, categoria=categoria, ano=ano, valor=valor, estoque=estoque)
+        novo_livro = Livro.Construtor_manual()
         lista_livros.append(novo_livro)
         
         Limpar()
         novo_livro.info()
-
-        op = input("\nDeseja cadastrar mais algum produto?\n[1] Sim\n[2] Não\n\nDigite sua escolha: ")
-
-        if op == "2":
-            break
+        input("""Livro cadastrado com sucesso!
+                 
+Pressione 'Enter' para voltar ao menu principal.""")
 
 # 2. Listar livros cadastrados
 def Livros_cadastrados():
@@ -97,8 +163,9 @@ LIVRARIA - LIVROS CADASTRADOS
         valor_total = livro.valor * livro.estoque
         i += valor_total
 
-    valor_total_str = f"{i:.2f}"
-    print(f'\nValor total do estoque da livraria: R$ {valor_total_str.replace(".",",")}')
+    valor_total_str = f"{i:.2f}".replace(".",",")
+    valor_total_str = Correcao_quantia(valor_total_str)
+    print(f'\nValor total do estoque da livraria: R$ {valor_total_str}')
 
     input("\nPressione 'Enter' para voltar ao menu principal.")
 
@@ -160,7 +227,7 @@ def Buscar_livros():
         while True:
             Limpar_e_titulo()
             entrada = input("\nCódigo: ")
-            busca = Validacao("int", entrada)
+            busca = Validacao("int", entrada, 0)
             if busca != None: break
 
         Limpar_e_titulo()
@@ -192,7 +259,7 @@ def Buscar_livros():
         while True:
             Limpar_e_titulo()
             entrada = input("\nAno: ")
-            busca = Validacao("int", entrada)
+            busca = Validacao("int", entrada, 1)
             if busca != None: break
         
         while True:
@@ -240,7 +307,7 @@ Digite sua escolha: """)
         while True:
             Limpar_e_titulo()
             entrada = input("\nPreço: R$ ")
-            busca = Validacao("float", entrada)
+            busca = Validacao("float", entrada, 0)
             if busca != None: break
             
         busca_s = f"{busca:.2f}".replace(".",",")
@@ -290,7 +357,7 @@ Digite sua escolha: """)
         while True:
             Limpar_e_titulo()
             entrada = input("\nQuantidade: ")
-            busca = Validacao("int", entrada)
+            busca = Validacao("int", entrada, 0)
             if busca != None: break
         
         while True:
@@ -338,7 +405,7 @@ Digite sua escolha: """)
         while True:
             Limpar_e_titulo()
             entrada = input("\nValor total em estoque: R$ ")
-            busca = Validacao("float", entrada)
+            busca = Validacao("float", entrada, 0)
             if busca != None: break
             
         busca_s = f"{busca:.2f}".replace(".",",")
@@ -431,6 +498,55 @@ Digite sua escolha: """)
     # -------------------------------
     Busca_menu()
 
+# 4. Editar livro cadastrado
+
+
+# 5. Excluir livro cadastrado
+
+
+# 6. Salvar atualizações de cadastro
+def Salvar_atualizacoes():
+        def Titulo():
+            print(f"""{"-" * 32}
+ LIVRARIA - SALVAR ATUALIZAÇÕES
+{"-" * 32}
+""")
+        
+        while True:
+            Limpar()
+            Titulo()
+            op = input("""Qualquer alteração não salva será perdida ao encerrar a sessão atual.
+               
+Deseja salvar as alterações feitas na sessão atual?
+[1] Sim
+[2] Não
+               
+Digite sua escolha: """)
+    
+            if op == "1":
+                Limpar()
+                Titulo()
+                print("Salvando registros...")
+
+                cabecalho = "codigo,titulo,autor,editora,categoria,ano,valor,estoque"
+
+                with open('lista_livros.csv', 'w') as arquivo:
+                    arquivo.write(f"{cabecalho}\n")
+
+                    for livro in lista_livros:
+                        arquivo.write(f"{livro.codigo};{livro.titulo};{livro.autor};{livro.editora};{livro.categoria};{livro.ano};{livro.valor};{livro.estoque}\n".upper())
+
+                print("\nRegistros salvos com sucesso!")
+                break
+
+            if op == "2":
+                Limpar()
+                Titulo()
+                print("Nenhuma alteração foi salva ou perdida.")
+                break
+
+        input("\nPressione 'Enter' para voltar ao menu principal.")
+
 # Menu principal
 def Menu_principal():
     while True:
@@ -443,39 +559,57 @@ def Menu_principal():
 [1] Cadastrar livro
 [2] Listar livros cadastrados
 [3] Buscar livros cadastrados
+[4] Editar livro cadastrado (EM DESENVOLVIMENTO)
+[5] Excluir livro cadastrado (EM DESENVOLVIMENTO)
+[6] Salvar atualizações de cadastro
 [0] Encerrar o sistema
 
 Digite sua escolha: """)
 
-# -------------------------------
-# 0. Encerrar sistema
-# -------------------------------
-
+        # -------------------------------
+        # 0. Encerrar sistema
+        # -------------------------------
         if menu == "0":
             Limpar()
-            print("Encerrando sistema...\n")
+            Encerrar_sistema()
+            print("\nEncerrando sistema...\n")
             break
 
-# -------------------------------
-# 1. Cadastrar livro
-# -------------------------------
-
+        # -------------------------------
+        # 1. Cadastrar livro
+        # -------------------------------
         if menu == "1":
             Cadastrar_livro()
 
-# -------------------------------
-# 2. Listar livros cadastrados
-# -------------------------------
-
+        # -------------------------------
+        # 2. Listar livros cadastrados
+        # -------------------------------
         if menu == "2":
             Livros_cadastrados()
 
-# -------------------------------
-# 3. Buscar livros cadastrados
-# -------------------------------
-
+        # -------------------------------
+        # 3. Buscar livros cadastrados
+        # -------------------------------
         if menu == "3":
             Buscar_livros()
+
+        # -------------------------------
+        # 4. Editar livro cadastrado
+        # -------------------------------
+        if menu == "4":
+            ...
+
+        # -------------------------------
+        # 5. Excluir livro cadastrado
+        # -------------------------------
+        if menu == "5":
+            ...
+
+        # -------------------------------
+        # 6. Salvar atualizações de cadastro
+        # -------------------------------
+        if menu == "6":
+            Salvar_atualizacoes()
 
 # ================================================================
 #   CLASSE
@@ -497,51 +631,84 @@ class Livro:
     # -------------------------------
 
     def info(self):
-        valor_s = f"{self.valor:.2f}".replace(".",",")
+        valor_str = f"{self.valor:.2f}".replace(".",",")
         valor_total = self.valor * self.estoque
         valor_total_str = f"{valor_total:.2f}".replace(".",",")
+
+        valor_str = Correcao_quantia(valor_str)
+        valor_total_str = Correcao_quantia(valor_total_str)
+
         print(f'''{"Código:".ljust(25)} {self.codigo}
 {"Titulo:".ljust(25)} {self.titulo}
 {"Autor:".ljust(25)} {self.autor}
 {"Editora:".ljust(25)} {self.editora}
 {"Categoria:".ljust(25)} {self.categoria}
 {"Ano:".ljust(25)} {self.ano}
-{"Valor:".ljust(25)} R$ {valor_s}
+{"Valor:".ljust(25)} R$ {valor_str}
 {"Estoque:".ljust(25)} {self.estoque} unidades
 {"Valor total de estoque:".ljust(25)} R$ {valor_total_str}
 ''')
 
+    @classmethod
+    def Construtor_manual(cls):
+        codigo = Gera_codigo()
+        
+        while True:
+            titulo = input("Titulo: ")
+            if titulo == "": print("Erro: O campo titulo não pode estar vazio.")
+            if titulo != "": break
+
+        while True:
+            autor = input("Autor: ")
+            if autor == "": print("Erro: O campo autor não pode estar vazio.")
+            if autor != "": break
+
+        while True:
+            editora = input("Editora: ")
+            if editora == "": print("Erro: O campo editora não pode estar vazio.")
+            if editora != "": break
+
+        while True:
+            categoria = input("Categoria: ")
+            if categoria == "": print("Erro: O campo categoria não pode estar vazio.")
+            if categoria != "": break
+
+        while True:
+            entrada = input("Ano: ")
+            ano = Validacao("int", entrada, 1)
+            if ano != None: break
+
+        while True:
+            entrada = input("Valor: ")
+            valor = Validacao("float", entrada, 0)
+            if valor != None: break
+
+        while True:
+            entrada = input("Quantidade: ")
+            estoque = Validacao("int", entrada, 0)
+            if estoque != None: break
+
+        novo_livro = Livro(codigo=codigo, titulo=titulo, autor=autor, editora=editora, categoria=categoria, ano=ano, valor=valor, estoque=estoque)
+        return novo_livro
+
+    @classmethod
+    def Construtor_CSV(cls, dados_livro):
+        codigo = int(dados_livro[0])
+        titulo = dados_livro[1]
+        autor = dados_livro[2]
+        editora = dados_livro[3]
+        categoria = dados_livro[4]
+        ano = int(dados_livro[5])
+        valor = float(dados_livro[6])
+        estoque = int(dados_livro[7].replace("\n", ""))
+        return cls(codigo, titulo, autor, editora, categoria, ano, valor, estoque)
+    
 # ================================================================
-#   PRÉ-DEFINIÇÃO DE LISTA
+#   PRÉ-DEFINIÇÃO DE LISTAS
 # ================================================================
 
-lista_livros = [
-    Livro(1, "Dom Casmurro", "Machado de Assis", "Principis", "Literatura Brasileira", 1899, 29.90, 15),
-    Livro(2, "O Hobbit", "J.R.R. Tolkien", "HarperCollins", "Fantasia", 1937, 59.90, 10),
-    Livro(3, "1984", "George Orwell", "Companhia das Letras", "Distopia", 1949, 45.00, 20),
-    Livro(4, "O Iluminado", "Stephen King", "Suma", "Terror", 1977, 64.90, 8),
-    Livro(5, "Sapiens", "Yuval Noah Harari", "L&PM", "História", 2011, 74.90, 12),
-    Livro(6, "Duna", "Frank Herbert", "Aleph", "Ficção Científica", 1965, 89.90, 5),
-    Livro(7, "A Metamorfose", "Franz Kafka", "Antofágica", "Clássico", 1915, 39.90, 7),
-    Livro(8, "Clean Code", "Robert C. Martin", "Alta Books", "Tecnologia", 2008, 95.00, 4),
-    Livro(9, "Pai Rico, Pai Pobre", "Robert Kiyosaki", "Alta Books", "Finanças", 1997, 55.00, 25),
-    Livro(10, "O Alquimista", "Paulo Coelho", "Paralela", "Autoajuda", 1988, 34.90, 30),
-    Livro(11, "Orgulho e Preconceito", "Jane Austen", "Martin Claret", "Romance", 1813, 42.00, 18),
-    Livro(12, "O Código Da Vinci", "Dan Brown", "Arqueiro", "Suspense", 2003, 49.90, 14),
-    Livro(13, "Mulheres que Correm com os Lobos", "Clarissa Pinkola Estés", "Rocco", "Psicologia", 1992, 79.90, 9),
-    Livro(14, "O Pequeno Príncipe", "Antoine de Saint-Exupéry", "Agir", "Infantil", 1943, 25.00, 50),
-    Livro(15, "Cem Anos de Solidão", "Gabriel García Márquez", "Record", "Realismo Mágico", 1967, 69.90, 11),
-    Livro(16, "Algoritmos para Viver", "Brian Christian", "Record", "Ciência", 2016, 52.00, 6),
-    Livro(17, "Ensaio Sobre a Cegueira", "José Saramago", "Porto Editora", "Ficção", 1995, 58.00, 13),
-    Livro(18, "O Cortiço", "Aluísio Azevedo", "Ática", "Naturalismo", 1890, 22.00, 22),
-    Livro(19, "Neuromancer", "William Gibson", "Aleph", "Cyberpunk", 1984, 54.00, 7),
-    Livro(20, "A República", "Platão", "Edipro", "Filosofia", -375, 48.00, 10),
-    Livro(21, "O Processo", "Franz Kafka", "Companhia das Letras", "Clássico", 1925, 44.90, 5),
-    Livro(22, "Capitães da Areia", "Jorge Amado", "Companhia das Letras", "Modernismo", 1937, 39.00, 16),
-    Livro(23, "O Gene", "Siddhartha Mukherjee", "Companhia das Letras", "Biologia", 2016, 85.00, 4),
-    Livro(24, "A Revolução dos Bichos", "George Orwell", "Companhia das Letras", "Sátira Política", 1945, 28.00, 35),
-    Livro(25, "Breves Respostas para Grandes Questões", "Stephen Hawking", "Intrínseca", "Divulgação Científica", 2018, 49.00, 20)
-]
+lista_livros = []
+Carregar_dados()
 
 # ================================================================
 #   EXECUÇÃO
