@@ -2,8 +2,8 @@
 #   IMPORTAÇÕES
 # ================================================================
 
-# Importa comandos do Windows/Linux
 import os
+from datetime import datetime
 
 # ================================================================
 #   MÉTODOS/FUNÇÕES
@@ -28,7 +28,7 @@ def Validacao(tipo, valor, aceita_negativo=1):
 
         # Tratamento para valores negativos
         if aceita_negativo == 0 and num < 0:
-            print(f"Erro: O valor '{valor}' não pode ser negativo.")
+            print(f"Erro: O valor não pode ser negativo ({valor}).")
             return None
             
         return num
@@ -193,13 +193,13 @@ def Buscar_livros():
             Limpar_e_titulo()    
             
             if tipo == "titulo":
-                busca = input("\nTitulo: ")
+                busca = input("\nTitulo: ").upper()
             elif tipo == "autor":
-                busca = input("\nAutor: ")
+                busca = input("\nAutor: ").upper()
             elif tipo == "editora":   
-                busca = input("\nEditora: ")    
+                busca = input("\nEditora: ").upper()   
             elif tipo == "categoria":
-                busca = input("\nCategoria: ")  
+                busca = input("\nCategoria: ").upper()
 
             Limpar_e_titulo()
             i = 0 
@@ -498,13 +498,7 @@ Digite sua escolha: """)
     # -------------------------------
     Busca_menu()
 
-# 4. Editar livro cadastrado
-
-
-# 5. Excluir livro cadastrado
-
-
-# 6. Salvar atualizações de cadastro
+# 4. Salvar atualizações de cadastro
 def Salvar_atualizacoes():
         def Titulo():
             print(f"""{"-" * 32}
@@ -528,7 +522,7 @@ Digite sua escolha: """)
                 Titulo()
                 print("Salvando registros...")
 
-                cabecalho = "codigo,titulo,autor,editora,categoria,ano,valor,estoque"
+                cabecalho = "CODIGO;TITULO;AUTOR;EDITORA;CATEGORIA;ANO;VALOR;ESTOQUE"
 
                 with open('lista_livros.csv', 'w') as arquivo:
                     arquivo.write(f"{cabecalho}\n")
@@ -559,12 +553,13 @@ def Menu_principal():
 [1] Cadastrar livro
 [2] Listar livros cadastrados
 [3] Buscar livros cadastrados
-[4] Editar livro cadastrado (EM DESENVOLVIMENTO)
-[5] Excluir livro cadastrado (EM DESENVOLVIMENTO)
-[6] Salvar atualizações de cadastro
+[4] Salvar atualizações de cadastro
 [0] Encerrar o sistema
 
 Digite sua escolha: """)
+        
+# [4] Editar livro cadastrado (EM DESENVOLVIMENTO)
+# [5] Excluir livro cadastrado (EM DESENVOLVIMENTO)
 
         # -------------------------------
         # 0. Encerrar sistema
@@ -596,19 +591,20 @@ Digite sua escolha: """)
         # -------------------------------
         # 4. Editar livro cadastrado
         # -------------------------------
-        if menu == "4":
+        #if menu == "4":
             ...
 
         # -------------------------------
         # 5. Excluir livro cadastrado
         # -------------------------------
-        if menu == "5":
+        #if menu == "5":
             ...
 
         # -------------------------------
         # 6. Salvar atualizações de cadastro
         # -------------------------------
-        if menu == "6":
+        #if menu == "6":
+        if menu == "4":
             Salvar_atualizacoes()
 
 # ================================================================
@@ -676,12 +672,54 @@ class Livro:
         while True:
             entrada = input("Ano: ")
             ano = Validacao("int", entrada, 1)
-            if ano != None: break
+            
+            if ano != None:
+                ano_atual = datetime.now().year
+                
+                if ano > ano_atual:
+                    confirmou = False
+                    while True:
+                        op = input(f"\n{ano} é maior que o ano atual, tem certeza que deseja continuar?\n[1] Sim\n[2] Não\n\nDigite sua escolha: ")
+                        
+                        if op == "1":
+                            confirmou = True
+                            break
+                        elif op == "2":
+                            confirmou = False
+                            break
+                        else:
+                            print("Escolha inválida.")
+
+                    if confirmou: 
+                        break
+                else:
+                    break
+
+            
 
         while True:
             entrada = input("Valor: ")
             valor = Validacao("float", entrada, 0)
-            if valor != None: break
+            
+            if valor != None:
+                if valor == 0:
+                    confirmou = False
+                    while True:
+                        op = input(f"\nO valor digitado foi R$ 0,00, tem certeza que deseja continuar??\n[1] Sim\n[2] Não\n\nDigite sua escolha: ")
+                        
+                        if op == "1":
+                            confirmou = True
+                            break
+                        elif op == "2":
+                            confirmou = False
+                            break
+                        else:
+                            print("Escolha inválida.")
+                    
+                    if confirmou:
+                        break
+                else:
+                    break
 
         while True:
             entrada = input("Quantidade: ")
